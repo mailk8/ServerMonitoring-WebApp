@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="servermonitoring-webapp:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>servermonitoring-webapp</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="servermonitoring-webapp-1.war">
+      <element id="artifact" artifact-name="servermonitoring-webapp:war exploded" />
+    </root>
+  </artifact>
+</component>

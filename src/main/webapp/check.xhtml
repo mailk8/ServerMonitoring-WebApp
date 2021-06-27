@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      >
+
+      <h:head>
+          <title>Check Server reachability</title>
+            <f:facet name="first">
+                  <meta http-equiv="X-UA-Compatible" />
+                  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+                  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=0"/>
+                  <meta name="apple-mobile-web-app-capable" content="yes"/>
+            </f:facet>
+
+            <style>
+              .container-fluid {
+                  width: 60%; !important;
+              }
+              .myClass {
+                  height: 60px; !important;
+              }
+
+              @media only screen and (max-width: 600px) {
+                  .container-fluid {
+                      width: 100%; !important;
+                  }
+                  .myClass {
+                      height: 1px; !important;
+                  }
+              }
+            </style>
+
+
+            <h:outputStylesheet library="webjars" name="bootstrap/4.5.2/css/bootstrap.min.css"/>
+            <h:outputStylesheet name="primeflex.css" library="css"/>
+            <h:outputStylesheet name="flags.css" library="css"/>
+
+            <h:outputScript library="webjars" name="bootstrap/4.5.2/js/bootstrap.js"/>
+            <h:outputScript name="jquery/jquery.js" library="primefaces" />
+            <h:outputScript name="jquery/jquery-plugins.js" library="primefaces" />
+            <h:outputScript name="core.js" library="primefaces" />
+
+
+      </h:head>
+_
+      <body>
+
+            <main class="container-fluid" >
+                  <p:card style="margin-inside: 6rem; margin-bottom: 3rem">
+
+                        <f:facet name="title">Check Server reachability by http GET</f:facet>
+
+                        <br/>
+                        <h:form id="form">
+                              <div class="card">
+                                    <p:dataTable id="requestdata" widgetVar="requestdata" var="someRequest" value="#{backingBean.requests}" editable="true"
+                                                 cellEditMode="eager" stripedRows="true" reflow="true">
+
+                                        <p:column headerText="Server" colspan="5" >
+                                            <p:cellEditor>
+                                                <f:facet name="output"> <h:outputText value="#{someRequest.server}" /> </f:facet>
+                                                <f:facet name="input"> <h:inputText id="modelInput" value="#{someRequest.server}" /> </f:facet>
+                                            </p:cellEditor>
+                                          </p:column>
+
+                                          <p:column headerText="Status Code" colspan="5" >
+                                                  <h:outputText value="#{someRequest.status}" />
+                                          </p:column>
+
+                                        <p:column headerText="Last Result" colspan="5" >
+                                            <h:outputText value="#{someRequest.getLastResultFormatted()}" />
+                                        </p:column>
+
+                                        <p:column colspan="2" >
+                                              <p:rowEditor rendered="#{not backingBean.running}"/>
+                                        </p:column>
+
+                                        <p:column colspan="1" >
+                                            <div class="myClass"></div>
+                                        </p:column>
+
+                                        <p:column colspan="2" >
+                                            <p:commandButton styleClass="rounded-button ui-button-flat ui-button-plain" icon="pi pi-trash" process="form:requestdata" update="form:requestdata"
+                                                             actionListener="#{backingBean.deleteRow(someRequest)}" rendered="#{not backingBean.running}" >
+                                            </p:commandButton>
+                                        </p:column>
+
+                                    </p:dataTable>
+                              </div>
+
+                              <h:commandScript name="pushScript"  render="form:requestdata"  />
+                              <f:websocket channel="channelUser" connected="true" onopen="pushScript" onclose="pushScript" onmessage="pushScript" scope="application" >
+                                <f:ajax event="channelUser" immediate="true" render="form:requestdata"  />
+                              </f:websocket>
+
+                              <div>
+                                  <h:commandButton action="#{backingBean.start()}" disabled="#{backingBean.running}" value="Start" class="btn btn-success" style="float:left; margin-top: .4rem;"/>
+                                  <h:commandButton action="#{backingBean.stop()}" disabled="#{not backingBean.running}" value="Stop" class="btn btn-warning"
+                                                   style="float:left; margin-top: .4rem; margin-left: .4rem; color: #ffffff !important; border-color: crimson !important; background-color: crimson !important;"/>
+                                  <p:commandButton value="Add new row" process="@this"  disabled="#{backingBean.running}" action="#{backingBean.addNewRow()}"
+                                                 oncomplete="PF('requestdata').addRow();" style="float:left; margin-top: .4rem; margin-left: .4rem"/>
+                              </div>
+                        </h:form>
+                        <br/>
+                  </p:card>
+            </main>
+      </body>
+</html>
